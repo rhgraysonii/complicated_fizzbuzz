@@ -12,3 +12,7 @@ end
 def zero?(proc)
   proc[-> x { FALSE }][TRUE]
 end
+
+def less_or_equal?(m, n)
+  IS_ZERO[SUBTRACT[m][n]]
+end
