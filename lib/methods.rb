@@ -9,3 +9,6 @@ def to_boolean(proc)
   IF[true][false]
 end
 
+def zero?(proc)
+  proc[-> x { FALSE }][TRUE]
+end
