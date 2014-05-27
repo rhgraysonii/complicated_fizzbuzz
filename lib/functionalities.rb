@@ -12,7 +12,12 @@ POWER             = -> m { -> n { n[MULTIPLY[m]][ONE] } }
 IS_LESS_OR_EQUAL  = -> m { -> n {
                     IS_ZERO[SUBTRACT[m][n]]
                     } }
-MOD               = -> m { -> n {
-                    IF[IS_LESS_OR_EQUAL[n][m]][
-                        MOD[SUBTRACT[m][n]][n]
-                      ][m] } }
+MOD =
+  Z[-> f { -> m { -> n {
+    IF[IS_LESS_OR_EQUAL[n][m]][
+      -> x {
+        f[SUBTRACT[m][n]][n][x]
+        }][m]
+        } } }]
+Z = -> f { -> x { f[-> y { x[x][y] }] }
+          [-> x { f[-> y { x[x][y] }] }] }
