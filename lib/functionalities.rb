@@ -1,75 +1,79 @@
-TRUE              = -> x { -> y { x } }
-FALSE             = -> x { -> y { y } }
-IF                = -> b { b }
-IS_ZERO           = -> n { n[-> x { FALSE }][TRUE] }
-INCREMENT         = -> n { -> p { -> x { p[n[p][x]] } } }
-DECREMENT         = -> n { -> f { -> x { n[-> g { -> h { h[g[f]] } }]
-                                  [-> y { x }][-> y { y }] } } }
-ADD               = -> m { -> n { n[INCREMENT][m] } }
-SUBTRACT          = -> m { -> n { n[DECREMENT][m] } }
-MULTIPLY          = -> m { -> n { n[ADD[m]][ZERO] } }
-POWER             = -> m { -> n { n[MULTIPLY[m]][ONE] } }
-IS_LESS_OR_EQUAL  = -> m { -> n {
-                    IS_ZERO[SUBTRACT[m][n]]
-                    } }
 
-MOD =
-  Z[-> f { -> m { -> n {
-    IF[IS_LESS_OR_EQUAL[n][m]][
-      -> x {
-        f[SUBTRACT[m][n]][n][x]
-        }][m]
-        } } }]
+# Natural numbers
+ZERO  = -> f { -> x {       x     } }
+ONE   = -> f { -> x {     f[x]    } }
+INCREMENT = -> n { -> f { -> x { f[n[f][x]] } } }
+ADD       = -> m { -> n { n[INCREMENT][m] } }
+MULTIPLY  = -> m { -> n { n[ADD[m]][ZERO] } }
+DECREMENT = -> n { -> f { -> x { n[-> g { -> h { h[g[f]] } }][-> y { x }][-> y { y }] } } }
+SUBTRACT  = -> m { -> n { n[DECREMENT][m] } }
 
-Z = -> f { -> x { f[-> y { x[x][y] }] }
-          [-> x { f[-> y { x[x][y] }] }] }
+# Booleans
+
+TRUE_shit_shit = -> x { -> y { x } }
+FALSE_shit_shit = -> x { -> y { y } }
+IF    = -> b { b }
+
+# Natural numbers with booleans
+IS_ZERO           = -> n { n[-> x { FALSE_shit }][TRUE_shit] }
+IS_LESS_OR_EQUAL  = -> m { -> n { IS_ZERO[SUBTRACT[m][n]] } }
+IS_EQUAL          = -> m { -> n { AND[IS_LESS_OR_EQUAL[m][n]][IS_LESS_OR_EQUAL[n][m]] } }
+
+# Combinators
+
+Y = -> f { -> x { f[       x[x]     ] }[-> x { f[       x[x]     ] }] }
+Z = -> f { -> x { f[-> _ { x[x][_] }] }[-> x { f[-> _ { x[x][_] }] }] }
+
+# Natural numbers with recursion
+DIV       = Z[-> f { -> m { -> n { IF[IS_LESS_OR_EQUAL[n][m]][-> _ { INCREMENT[f[SUBTRACT[m][n]][n]][_] }][ZERO] } } }]
+MOD       = Z[-> f { -> m { -> n { IF[IS_LESS_OR_EQUAL[n][m]][-> _ { f[SUBTRACT[m][n]][n][_] }][m] } } }]
+
+# Pairs
 
 PAIR  = -> x { -> y { -> f { f[x][y] } } }
 LEFT  = -> p { p[-> x { -> y { x } } ] }
 RIGHT = -> p { p[-> x { -> y { y } } ] }
-EMPTY     = PAIR[TRUE][TRUE]
-UNSHIFT   = -> l { -> x {
-              PAIR[FALSE][PAIR[x][l]]
-            } }
 
+# Lists
+
+EMPTY     = PAIR[TRUE_shit][TRUE_shit]
+UNSHIFT   = -> l { -> x { PAIR[FALSE_shit][PAIR[x][l]] } }
 IS_EMPTY  = LEFT
 FIRST     = -> l { LEFT[RIGHT[l]] }
 REST      = -> l { RIGHT[RIGHT[l]] }
-RANGE     = Z[-> f {
-            -> m { -> n {
-              IF[IS_LESS_OR_EQUAL[m][n]][-> x { UNSHIFT[f[INCREMENT[m]][n]][m][x] } ] [EMPTY] } } }]
+CONCAT  = -> k { -> l { FOLD[k][l][UNSHIFT] } }
 
-FOLD      = Z[-> f { -> l { -> x { -> g { 
-              IF[IS_EMPTY[l]][x][-> y 
-                {g[f[REST[l]][x][g]][FIRST[l]][y]}]
-                } 
-              } 
-            }
-          }]
+INJECT  = Z[-> f { -> l { -> x { -> g { IF[IS_EMPTY[l]][x][-> _ { f[REST[l]][g[x][FIRST[l]]][g][_] }] } } } }]
+FOLD    = Z[-> f { -> l { -> x { -> g { IF[IS_EMPTY[l]][x][-> _ { g[f[REST[l]][x][g]][FIRST[l]][_] }] } } } }]
+MAP     = -> k { -> f { FOLD[k][EMPTY][-> l { -> x { UNSHIFT[l][f[x]] } }] } }
+RANGE   = Z[-> f { -> m { -> n { IF[IS_LESS_OR_EQUAL[m][n]][-> _ { UNSHIFT[f[INCREMENT[m]][n]][m][_] }][EMPTY] } } }]
+SUM     = -> l { INJECT[l][ZERO][ADD] }
+PRODUCT = -> l { INJECT[l][ONE][MULTIPLY] }
+PUSH    = -> l { -> x { CONCAT[l][UNSHIFT[EMPTY][x]] } }
 
-MAP       =
-        -> k { -> f {
-          FOLD[k][EMPTY][
-            -> l { -> x { UNSHIFT[l][f[x]] } }
-          ]
-        } }
+# Natural numbers with lists
+TO_DIGITS = Z[-> f { -> n { PUSH[IF[IS_LESS_OR_EQUAL[n][DECREMENT[RADIX]]][EMPTY][ -> _ { f[DIV[n][RADIX]][_] } ]][MOD[n][RADIX]] } }]
+TO_CHAR   = -> n { n } # assume string encoding where 0 encodes '0', 1 encodes '1' etc
+TO_STRING = -> n { MAP[TO_DIGITS[n]][TO_CHAR] }
 
-TEN       = MULTIPLY[TWO][FIVE]
-B         = TEN
-F         = INCREMENT[B]
-I         = INCREMENT[F]
-U         = INCREMENT[I]
-ZED       = INCREMENT[U]
-FIZZ      = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[EMPTY][ZED]][ZED]][I]][F]
-BUZZ      = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[EMPTY][ZED]][ZED]][U]][B]
-FIZZBUZZ  = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[BUZZ][ZED]][ZED]][I]][F]
+# FizzBuzz
 
-TO_DIGITS = Z[-> f { -> n { PUSH[
-              IF[IS_LESS_OR_EQUAL[n][DECREMENT[TEN]]][
-                EMPTY
-              ][
-                -> x {
-                  f[DIV[n][TEN]][x]
-                }
-              ]
-            ][MOD[n][TEN]] } }]
+ZERO    = -> p { -> x {       x    } }
+FIVE    = -> p { -> x { p[p[p[p[p[x]]]]] } }
+FIFTEEN = -> p { -> x { p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[x]]]]]]]]]]]]]]] } }
+HUNDRED = -> p { -> x { p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[x]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] } }
+FIZZ    = MAP[UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[EMPTY][FOUR]][FOUR]][TWO]][ONE]][ADD[RADIX]]
+BUZZ    = MAP[UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[EMPTY][FOUR]][FOUR]][THREE]][ZERO]][ADD[RADIX]]
+
+FIZZBUZZ =
+  -> m { MAP[RANGE[ONE][m]][-> n {
+    IF[IS_ZERO[MOD[n][FIFTEEN]]][
+      CONCAT[FIZZ][BUZZ]
+    ][IF[IS_ZERO[MOD[n][THREE]]][
+      FIZZ
+    ][IF[IS_ZERO[MOD[n][FIVE]]][
+      BUZZ
+    ][
+      TO_STRING[n]
+    ]]]
+  }] }
