@@ -16,3 +16,11 @@ end
 def less_or_equal?(m, n)
   IS_ZERO[SUBTRACT[m][n]]
 end
+
+def mod(m, n)
+  IF[IS_LESS_OR_EQUAL[n][m]][
+    mod(SUBTRACT[m][n], n)
+  ][
+    m
+  ]
+end
