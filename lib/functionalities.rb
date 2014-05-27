@@ -24,4 +24,10 @@ Z = -> f { -> x { f[-> y { x[x][y] }] }
 PAIR  = -> x { -> y { -> f { f[x][y] } } }
 LEFT  = -> p { p[-> x { -> y { x } } ] }
 RIGHT = -> p { p[-> x { -> y { y } } ] }
-
+EMPTY     = PAIR[TRUE][TRUE]
+UNSHIFT   = -> l { -> x {
+              PAIR[FALSE][PAIR[x][l]]
+            } }
+IS_EMPTY  = LEFT
+FIRST     = -> l { LEFT[RIGHT[l]] }
+REST      = -> l { RIGHT[RIGHT[l]] }
