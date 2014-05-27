@@ -46,3 +46,10 @@ FOLD      = Z[-> f { -> l { -> x { -> g {
               } 
             }
           }]
+
+MAP       =
+        -> k { -> f {
+          FOLD[k][EMPTY][
+            -> l { -> x { UNSHIFT[l][f[x]] } }
+          ]
+        } }
