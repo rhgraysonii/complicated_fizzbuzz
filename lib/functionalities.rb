@@ -54,12 +54,22 @@ MAP       =
           ]
         } }
 
-TEN = MULTIPLY[TWO][FIVE]
-B   = TEN
-F   = INCREMENT[B]
-I   = INCREMENT[F]
-U   = INCREMENT[I]
-ZED = INCREMENT[U]
-FIZZ     = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[EMPTY][ZED]][ZED]][I]][F]
-BUZZ     = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[EMPTY][ZED]][ZED]][U]][B]
-FIZZBUZZ = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[BUZZ][ZED]][ZED]][I]][F]
+TEN       = MULTIPLY[TWO][FIVE]
+B         = TEN
+F         = INCREMENT[B]
+I         = INCREMENT[F]
+U         = INCREMENT[I]
+ZED       = INCREMENT[U]
+FIZZ      = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[EMPTY][ZED]][ZED]][I]][F]
+BUZZ      = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[EMPTY][ZED]][ZED]][U]][B]
+FIZZBUZZ  = UNSHIFT[UNSHIFT[UNSHIFT[UNSHIFT[BUZZ][ZED]][ZED]][I]][F]
+
+TO_DIGITS = Z[-> f { -> n { PUSH[
+              IF[IS_LESS_OR_EQUAL[n][DECREMENT[TEN]]][
+                EMPTY
+              ][
+                -> x {
+                  f[DIV[n][TEN]][x]
+                }
+              ]
+            ][MOD[n][TEN]] } }]
