@@ -1,5 +1,5 @@
 
-# Natural numbers
+# Nat nums
 ZERO  = -> f { -> x {       x     } }
 ONE   = -> f { -> x {     f[x]    } }
 INCREMENT = -> n { -> f { -> x { f[n[f][x]] } } }
@@ -8,34 +8,31 @@ MULTIPLY  = -> m { -> n { n[ADD[m]][ZERO] } }
 DECREMENT = -> n { -> f { -> x { n[-> g { -> h { h[g[f]] } }][-> y { x }][-> y { y }] } } }
 SUBTRACT  = -> m { -> n { n[DECREMENT][m] } }
 
-# Booleans
-
+# Bools
 TRUE_shit_shit = -> x { -> y { x } }
 FALSE_shit_shit = -> x { -> y { y } }
 IF    = -> b { b }
 
-# Natural numbers with booleans
+# Nat nums + bools
 IS_ZERO           = -> n { n[-> x { FALSE_shit }][TRUE_shit] }
 IS_LESS_OR_EQUAL  = -> m { -> n { IS_ZERO[SUBTRACT[m][n]] } }
 IS_EQUAL          = -> m { -> n { AND[IS_LESS_OR_EQUAL[m][n]][IS_LESS_OR_EQUAL[n][m]] } }
 
-# Combinators
+# y/zed combinators
 
 Y = -> f { -> x { f[       x[x]     ] }[-> x { f[       x[x]     ] }] }
 Z = -> f { -> x { f[-> _ { x[x][_] }] }[-> x { f[-> _ { x[x][_] }] }] }
 
-# Natural numbers with recursion
+# Nat nums w/recursion
 DIV       = Z[-> f { -> m { -> n { IF[IS_LESS_OR_EQUAL[n][m]][-> _ { INCREMENT[f[SUBTRACT[m][n]][n]][_] }][ZERO] } } }]
 MOD       = Z[-> f { -> m { -> n { IF[IS_LESS_OR_EQUAL[n][m]][-> _ { f[SUBTRACT[m][n]][n][_] }][m] } } }]
 
 # Pairs
-
 PAIR  = -> x { -> y { -> f { f[x][y] } } }
 LEFT  = -> p { p[-> x { -> y { x } } ] }
 RIGHT = -> p { p[-> x { -> y { y } } ] }
 
 # Lists
-
 EMPTY     = PAIR[TRUE_shit][TRUE_shit]
 UNSHIFT   = -> l { -> x { PAIR[FALSE_shit][PAIR[x][l]] } }
 IS_EMPTY  = LEFT
@@ -57,7 +54,6 @@ TO_CHAR   = -> n { n } # assume string encoding where 0 encodes '0', 1 encodes '
 TO_STRING = -> n { MAP[TO_DIGITS[n]][TO_CHAR] }
 
 # FizzBuzz
-
 ZERO    = -> p { -> x {       x    } }
 FIVE    = -> p { -> x { p[p[p[p[p[x]]]]] } }
 FIFTEEN = -> p { -> x { p[p[p[p[p[p[p[p[p[p[p[p[p[p[p[x]]]]]]]]]]]]]]] } }
@@ -77,3 +73,5 @@ FIZZBUZZ =
       TO_STRING[n]
     ]]]
   }] }
+  
+  # inspired by jim weirich
